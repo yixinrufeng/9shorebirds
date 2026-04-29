@@ -1,0 +1,5 @@
+#!/bin/bash
+samtools mpileup -C50 -uf /path/auto.reference.fna /path/sample.bam |  bcftools call -c | vcfutils.pl vcf2fq -d 6 -D 48 | gzip > sample.fq.gz
+fq2psmcfa -q20 sample.fq.gz > sample.psmcfa
+psmc -N30 -t5 -r5 -p "1+1+1+1+30*2+4+6+10" -o sample.psmc sample.psmcfa
+psmc_plot.pl -u 2.709601939791e-09 -g 7.3 -R sample sample.psmc
