@@ -1,0 +1,160 @@
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scales)
+
+setwd("path")   
+
+## 读取温度数据
+temp <- read.csv("graph.csv", skip = 1, check.names = FALSE)
+names(temp)
+colnames(temp) <- c("Year", "Land_Annual", "Land_Lowess5", "Ocean_Annual", "Ocean_Lowess5")
+
+temp$Year <- as.numeric(temp$Year)
+temp$Land_Annual <- as.numeric(temp$Land_Annual)
+temp$Ocean_Annual <- as.numeric(temp$Ocean_Annual)
+
+temp_use <- temp[temp$Year >= 1951 & temp$Year <= 2022, ]
+
+## 读取滩涂面积数据
+tidal <- read.csv("tidal-area.csv", stringsAsFactors = FALSE)
+names(tidal)
+## 如果 tidal 数据中没有 year 列，则从 period 提取中点年份
+if (!"year" %in% names(tidal)) {
+  period_split <- strsplit(tidal$period, "-")
+  tidal$start_year <- as.numeric(sapply(period_split, `[`, 1))
+  tidal$end_year   <- as.numeric(sapply(period_split, `[`, 2))
+  tidal$year <- (tidal$start_year + tidal$end_year) / 2
+}
+
+
+par(mar = c(5, 5, 4, 5) + 0.1)
+
+## 左侧坐标轴：
+temp_range <- range(c(temp_use$Land_Annual,
+                      temp_use$Ocean_Annual),
+                    na.rm = TRUE)
+
+plot(temp_use$Year, temp_use$Land_Annual,
+     type = "l",
+     lwd = 2,
+     col = "firebrick",
+     ylim = temp_range,
+     xlim = c(1951, 2022),
+     xlab = "Year",
+     ylab = "Global annual mean temperature anomaly (°C)",
+  )
+
+lines(temp_use$Year, temp_use$Ocean_Annual,
+      lwd = 2,
+      col = "steelblue")
+#bar
+abline(v = 1973,
+       lty = 2,
+       lwd = 2,
+       col = "#EBC15B")
+y_text <- 0.8
+text(1971.2, y_text,
+     labels = "bar",
+     cex = 0.9,col = "#EBC15B")
+
+#common
+abline(v = 1994,
+       lty = 2,
+       lwd = 2,
+       col = "#F9D71C")
+y_text <- 0
+text(1994, y_text,
+     labels = "common",
+     cex = 0.9, col = "#F9D71C")
+#eastern
+abline(v = 1969,
+       lty = 2,
+       lwd = 2,
+       col = "#D1A146")
+y_text <- 1
+text(1967.5, y_text,
+     labels = "far",
+     cex = 0.9, col = "#D1A146")
+#great
+abline(v = 1979,
+       lty = 2,
+       lwd = 2,
+       col = "#ECF700")
+y_text <- 1
+text(1976.5, y_text,
+     labels = "great",
+     cex = 0.9,col = "#ECF700")
+#grey
+abline(v = 1989,
+       lty = 2,
+       lwd = 2,
+       col = "#AF780A")
+y_text <- -0.1
+text(1989, y_text,
+     labels = "grey",
+     cex = 0.9,col = "#AF780A")
+#red
+abline(v = 1980,
+       lty = 2,
+       lwd = 2,
+       col = "#A6E800")
+y_text <- 0.8
+text(1981.8, y_text,
+     labels = "red",
+     cex = 0.9, col = "#A6E800")
+#ruddy
+abline(v = 1981,
+       lty = 2,
+       lwd = 2,
+       col = "#267300")
+y_text <- 0.9
+text(1983.5, y_text,
+     labels = "ruddy",
+     cex = 0.9, col = "#267300")
+#spoon
+abline(v = 1996,
+       lty = 2,
+       lwd = 2,
+       col = "#5DB300")
+y_text <- 1.5
+text(1999, y_text,
+     labels = "spoon",
+     cex = 0.9,col = "#5DB300")
+#terek
+abline(v = 1986,
+       lty = 2,
+       lwd = 2,
+       col = "#C04800")
+y_text <- 0
+text(1984, y_text,
+     labels = "terek",
+     cex = 0.9, col = "#C04800")
+# 右侧坐标轴：滩涂面积变化
+par(new = TRUE)
+plot(tidal$year, tidal$tidal_flat_area_km2/1000,
+     type = "l",
+     lwd = 2,
+     col = "black",
+     axes = FALSE,
+     xlab = "",
+     ylab = "",
+     xlim = c(1951, 2016))
+
+axis(4)
+mtext(expression("Global tidal flat area (km"^2*X10^3*")"),
+      side = 4, line = 3)
+legend("topleft",
+       inset = c(0.02, 0.02),
+       legend = c("Land temperature", "Ocean temperature", "Tidal flat area"),
+       col = c("firebrick", "steelblue", "black"),
+       lty = c(1, 1, 1),
+       pch = c(NA, NA, NA),
+       lwd = 1,
+       bty = "n",
+       cex = 0.85)
+
+
+
+
