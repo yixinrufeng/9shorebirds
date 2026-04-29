@@ -1,0 +1,202 @@
+setwd("path")
+
+cols <- c(
+  bar = "#EBC15B",
+  common = "#F9D71C",
+  eastern = "#D1A146",
+  great = "#ECF700",
+  grey = "#AF780A",
+  red = "#A6E800",
+  ruddy = "#267300",
+  spoon = "#5DB300",
+  terek = "#C04800"
+)
+
+
+species_order <- c("spoon", "great", "eastern", "red", "ruddy", "bar", "grey", "terek", "common")
+## spoon
+spoon1 <- read.table("./spoon/NNU-ACE-0001.0.txt", header = FALSE)
+spoon2 <- read.table("./spoon/NNU_ACE_0002.0.txt", header = FALSE)
+spoon3 <- read.table("./spoon/NNU_ACE_0003.0.txt", header = FALSE)
+spoon4 <- read.table("./spoon/SAMN08968812.0.txt", header = FALSE)
+spoon5 <- read.table("./spoon/SAMN08968815.0.txt", header = FALSE)
+spoon6 <- read.table("./spoon/SAMN08968816.0.txt", header = FALSE)
+spoon7 <- read.table("./spoon/SAMN08968817.0.txt", header = FALSE)
+spoon8 <- read.table("./spoon/SAMN08968818.0.txt", header = FALSE)
+spoon9 <- read.table("./spoon/SAMN08968819.0.txt", header = FALSE)
+spoon10 <- read.table("./spoon/SAMN08968824.0.txt", header = FALSE)
+
+## bar
+bar1 <- read.table("./bar/NNU_ACE_0035.0.txt", header = FALSE)
+bar2 <- read.table("./bar/NNU_ACE_0081.0.txt", header = FALSE)
+bar3 <- read.table("./bar/NNU_ACE_0082.0.txt", header = FALSE)
+bar4 <- read.table("./bar/NNU_ACE_0083.0.txt", header = FALSE)
+bar5 <- read.table("./bar/NNU_ACE_0084.0.txt", header = FALSE)
+bar6 <- read.table("./bar/NNU-ACE-0010.0.txt", header = FALSE)
+bar7 <- read.table("./bar/SS_NNU_ACE_0199.0.txt", header = FALSE)
+bar8 <- read.table("./bar/SS_NNU_ACE_0200.0.txt", header = FALSE)
+bar9 <- read.table("./bar/SS_NNU_ACE_0202.0.txt", header = FALSE)
+
+## common
+common1  <- read.table("./common/NNU_ACE_0018.0.txt", header = FALSE)
+common2  <- read.table("./common/NNU_ACE_0042.0.txt", header = FALSE)
+common3  <- read.table("./common/NNU_ACE_0043.0.txt", header = FALSE)
+common4  <- read.table("./common/NNU_ACE_0044.0.txt", header = FALSE)
+common5  <- read.table("./common/NNU_ACE_0045.0.txt", header = FALSE)
+common6  <- read.table("./common/NNU_ACE_0046.0.txt", header = FALSE)
+common7  <- read.table("./common/NNU_ACE_0047.0.txt", header = FALSE)
+common8  <- read.table("./common/NNU_ACE_0048.0.txt", header = FALSE)
+common9  <- read.table("./common/NNU-ACE-0012.0.txt", header = FALSE)
+common10 <- read.table("./common/SS_NNU_ACE_0049.0.txt", header = FALSE)
+
+## eastern
+eastern1 <- read.table("./eastern/NNU_ACE_0020.0.txt", header = FALSE)
+eastern2 <- read.table("./eastern/NNU_ACE_0021.0.txt", header = FALSE)
+eastern3 <- read.table("./eastern/NNU_ACE_0022.0.txt", header = FALSE)
+eastern4 <- read.table("./eastern/NNU_ACE_0023.0.txt", header = FALSE)
+eastern5 <- read.table("./eastern/NNU_ACE_0024.0.txt", header = FALSE)
+eastern6 <- read.table("./eastern/NNU_ACE_0068.0.txt", header = FALSE)
+eastern7 <- read.table("./eastern/NNU_ACE_0069.0.txt", header = FALSE)
+eastern8 <- read.table("./eastern/NNU_ACE_0070.0.txt", header = FALSE)
+eastern9 <- read.table("./eastern/NNU-ACE-0005.0.txt", header = FALSE)
+
+## great
+great1  <- read.table("./great/NNU_ACE_0025.0.txt", header = FALSE)
+great2  <- read.table("./great/NNU_ACE_0026.0.txt", header = FALSE)
+great3  <- read.table("./great/NNU_ACE_0027.0.txt", header = FALSE)
+great4  <- read.table("./great/NNU_ACE_0032.0.txt", header = FALSE)
+great5  <- read.table("./great/NNU_ACE_0071.0.txt", header = FALSE)
+great6  <- read.table("./great/NNU-ACE-0004.0.txt", header = FALSE)
+great7  <- read.table("./great/S-NNU-ACE-0028.0.txt", header = FALSE)
+great8  <- read.table("./great/S-NNU-ACE-0029.0.txt", header = FALSE)
+great9  <- read.table("./great/S-NNU-ACE-0030.0.txt", header = FALSE)
+great10 <- read.table("./great/SS_NNU_ACE_0198.0.txt", header = FALSE)
+
+## grey
+grey1  <- read.table("./grey/NNU_ACE_0085.0.txt", header = FALSE)
+grey2  <- read.table("./grey/NNU_ACE_0086.0.txt", header = FALSE)
+grey3  <- read.table("./grey/NNU_ACE_0087.0.txt", header = FALSE)
+grey4  <- read.table("./grey/NNU_ACE_0088.0.txt", header = FALSE)
+grey5  <- read.table("./grey/NNU_ACE_0089.0.txt", header = FALSE)
+grey6  <- read.table("./grey/NNU_ACE_0090.0.txt", header = FALSE)
+grey7  <- read.table("./grey/NNU_ACE_0091.0.txt", header = FALSE)
+grey8  <- read.table("./grey/NNU_ACE_0092.0.txt", header = FALSE)
+grey9  <- read.table("./grey/NNU_ACE_0093.0.txt", header = FALSE)
+grey10 <- read.table("./grey/NNU-ACE-0011.0.txt", header = FALSE)
+
+## red
+red1  <- read.table("./red/NNU_ACE_0072.0.txt", header = FALSE)
+red2  <- read.table("./red/NNU_ACE_0073.0.txt", header = FALSE)
+red3  <- read.table("./red/NNU_ACE_0074.0.txt", header = FALSE)
+red4  <- read.table("./red/NNU_ACE_0076.0.txt", header = FALSE)
+red5  <- read.table("./red/NNU_ACE_0078.0.txt", header = FALSE)
+red6  <- read.table("./red/NNU_ACE_0079.0.txt", header = FALSE)
+red7  <- read.table("./red/NNU_ACE_0080.0.txt", header = FALSE)
+red8  <- read.table("./red/NNU-ACE-0009.0.txt", header = FALSE)
+red9  <- read.table("./red/S-NNU-ACE-0075.0.txt", header = FALSE)
+red10 <- read.table("./red/SS_NNU_ACE_0077.0.txt", header = FALSE)
+
+## ruddy
+ruddy1  <- read.table("./ruddy/NNU_ACE_0050.0.txt", header = FALSE)
+ruddy2  <- read.table("./ruddy/NNU_ACE_0051.0.txt", header = FALSE)
+ruddy3  <- read.table("./ruddy/NNU_ACE_0052.0.txt", header = FALSE)
+ruddy4  <- read.table("./ruddy/NNU_ACE_0053.0.txt", header = FALSE)
+ruddy5  <- read.table("./ruddy/NNU_ACE_0054.0.txt", header = FALSE)
+ruddy6  <- read.table("./ruddy/NNU_ACE_0055.0.txt", header = FALSE)
+ruddy7  <- read.table("./ruddy/NNU_ACE_0056.0.txt", header = FALSE)
+ruddy8  <- read.table("./ruddy/NNU_ACE_0057.0.txt", header = FALSE)
+ruddy9  <- read.table("./ruddy/NNU_ACE_0058.0.txt", header = FALSE)
+ruddy10 <- read.table("./ruddy/NNU-ACE-0007.0.txt", header = FALSE)
+
+## terek
+terek1  <- read.table("./terek/NNU_ACE_0059.0.txt", header = FALSE)
+terek2  <- read.table("./terek/NNU_ACE_0060.0.txt", header = FALSE)
+terek3  <- read.table("./terek/NNU_ACE_0061.0.txt", header = FALSE)
+terek4  <- read.table("./terek/NNU_ACE_0062.0.txt", header = FALSE)
+terek5  <- read.table("./terek/NNU_ACE_0063.0.txt", header = FALSE)
+terek6  <- read.table("./terek/NNU_ACE_0064.0.txt", header = FALSE)
+terek7  <- read.table("./terek/NNU_ACE_0065.0.txt", header = FALSE)
+terek8  <- read.table("./terek/NNU_ACE_0066.0.txt", header = FALSE)
+terek9  <- read.table("./terek/NNU_ACE_0067.0.txt", header = FALSE)
+terek10 <- read.table("./terek/NNU-ACE-0008.0.txt", header = FALSE)
+
+
+## 先建立空图
+xmin <- 10^4.0
+xmax <- 5e6
+par(mar = c(5, 5, 2, 5))
+plot(NA, NA,
+     type = "n",
+     log = "x",
+     xlim = c(xmin, xmax),
+     ylim = c(0, 200),
+     xaxt = "n",
+     yaxt = "n",
+     xlab = "Years",
+     ylab = expression("Effective population size (" %*% 10^4 * ")")
+)
+
+#自定义 x 轴刻度
+xticks <- c(1e4, 2e4, 3e4, 4e4, 5e4, 6e4, 7e4, 8e4, 9e4,
+            1e5, 2e5, 3e5, 4e5, 5e5, 6e5, 7e5, 8e5, 9e5,
+            1e6, 2e6, 3e6, 4e6, 5e6)
+axis(1, at = xticks, labels = format(xticks, scientific = TRUE))
+#y 轴
+axis(2, at = seq(0, 500, by = 50), las = 1)
+
+
+## 阴影区间
+rect(xleft = 18000,  ybottom = 0,
+     xright = 24000, ytop = 500,
+     col = adjustcolor("steelblue", alpha.f = 0.2),
+     border = NA)
+
+rect(xleft = 120000, ybottom = 0,
+     xright = 130000, ytop = 500,
+     col = adjustcolor("firebrick", alpha.f = 0.2),
+     border = NA)
+
+rect(xleft = 130000, ybottom = 0,
+     xright = 300000, ytop = 500,
+     col = adjustcolor("steelblue", alpha.f = 0.2),
+     border = NA)
+
+## 在阴影上方加文字
+text(x = sqrt(18000 * 24000),  y = 500, labels = "LGM", cex = 0.9, font = 2)
+text(x = sqrt(120000 * 130000), y = 500, labels = "LIG", cex = 0.9, font = 2)
+text(x = sqrt(130000* 300000), y = 500, labels = "PG", cex = 0.9, font = 2)
+## spoon
+lines(spoon1$V1, spoon1$V2, type = "s", col = cols["spoon"], lwd = 1)
+lines(spoon2$V1, spoon2$V2, type = "s", col = cols["spoon"], lwd = 1)
+lines(spoon3$V1, spoon3$V2, type = "s", col = cols["spoon"], lwd = 1)
+lines(spoon4$V1, spoon4$V2, type = "s", col = cols["spoon"], lwd = 1)
+lines(spoon5$V1, spoon5$V2, type = "s", col = cols["spoon"], lwd = 1)
+lines(spoon6$V1, spoon6$V2, type = "s", col = cols["spoon"], lwd = 1)
+lines(spoon7$V1, spoon7$V2, type = "s", col = cols["spoon"], lwd = 1)
+lines(spoon8$V1, spoon8$V2, type = "s", col = cols["spoon"], lwd = 1)
+lines(spoon9$V1, spoon9$V2, type = "s", col = cols["spoon"], lwd = 1)
+lines(spoon10$V1, spoon10$V2, type = "s", col = cols["spoon"], lwd = 1)
+
+
+## red
+lines(red1$V1, red1$V2, type = "s", col = cols["red"], lwd = 1)
+lines(red2$V1, red2$V2, type = "s", col = cols["red"], lwd = 1)
+lines(red3$V1, red3$V2, type = "s", col = cols["red"], lwd = 1)
+lines(red4$V1, red4$V2, type = "s", col = cols["red"], lwd = 1)
+lines(red5$V1, red5$V2, type = "s", col = cols["red"], lwd = 1)
+lines(red6$V1, red6$V2, type = "s", col = cols["red"], lwd = 1)
+lines(red7$V1, red7$V2, type = "s", col = cols["red"], lwd = 1)
+lines(red8$V1, red8$V2, type = "s", col = cols["red"], lwd = 1)
+lines(red9$V1, red9$V2, type = "s", col = cols["red"], lwd = 1)
+lines(red10$V1, red10$V2, type = "s", col = cols["red"], lwd = 1)
+
+
+## 图例
+legend("topleft",
+       legend = c("SPOON", "RED"),
+       col = cols[c("spoon", "red")],
+       lty = 1,
+       lwd = 1,
+       cex = 0.7,
+       bty = "n")
+
