@@ -1,0 +1,31 @@
+setwd("path")  
+## 文件前缀
+prefix <- "Spoon-billed"
+
+## 读入 1 到 100 的文件
+gone_list <- lapply(1:100, function(i) {
+  f <- paste0(prefix, ".", i, "_GONE2_Ne")
+  x <- read.table(f, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+  x <- x[x$Generation <= 200, ]   # 只保留 200 个世代以内
+  return(x)
+})
+
+## 先建立空图
+plot(NA, NA,
+     xlim = c(0, 150),
+     ylim = range(sapply(gone_list, function(x) x$Ne_diploids), na.rm = TRUE),
+     xlab = "Generation",
+     ylab = "Ne",
+     main = paste0(prefix, " GONE Ne"),
+     type = "n",
+     xaxt = "n")   # 先不画默认x轴
+
+for (i in 1:100) {
+  lines(gone_list[[i]]$Generation,
+        gone_list[[i]]$Ne_diploids,
+        col = "#5DB300",
+        lwd = 2)
+}
+
+axis(1, at = seq(0, 150, by = 5), labels = FALSE, tcl = -0.3)
+axis(1, at = c(0, 50, 100, 150), labels = c(0, 50, 100, 150), tcl = -0.5)
