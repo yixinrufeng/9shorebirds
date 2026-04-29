@@ -1,0 +1,296 @@
+setwd("path")
+
+cols <- c(
+  bar = "#EBC15B",
+  common = "#F9D71C",
+  eastern = "#D1A146",
+  great = "#ECF700",
+  grey = "#AF780A",
+  red = "#A6E800",
+  ruddy = "#267300",
+  spoon = "#5DB300",
+  terek = "#C04800"
+)
+species_order <- c("spoon", "great", "eastern", "red", "ruddy", "bar", "grey", "terek", "common")
+## spoon
+spoon1 <- read.table("./spoon/NNU-ACE-0001.0.txt", header = FALSE)
+spoon2 <- read.table("./spoon/NNU_ACE_0002.0.txt", header = FALSE)
+spoon3 <- read.table("./spoon/NNU_ACE_0003.0.txt", header = FALSE)
+spoon4 <- read.table("./spoon/SAMN08968812.0.txt", header = FALSE)
+spoon5 <- read.table("./spoon/SAMN08968815.0.txt", header = FALSE)
+spoon6 <- read.table("./spoon/SAMN08968816.0.txt", header = FALSE)
+spoon7 <- read.table("./spoon/SAMN08968817.0.txt", header = FALSE)
+spoon8 <- read.table("./spoon/SAMN08968818.0.txt", header = FALSE)
+spoon9 <- read.table("./spoon/SAMN08968819.0.txt", header = FALSE)
+spoon10 <- read.table("./spoon/SAMN08968824.0.txt", header = FALSE)
+
+## bar
+bar1 <- read.table("./bar/NNU_ACE_0035.0.txt", header = FALSE)
+bar2 <- read.table("./bar/NNU_ACE_0081.0.txt", header = FALSE)
+bar3 <- read.table("./bar/NNU_ACE_0082.0.txt", header = FALSE)
+bar4 <- read.table("./bar/NNU_ACE_0083.0.txt", header = FALSE)
+bar5 <- read.table("./bar/NNU_ACE_0084.0.txt", header = FALSE)
+bar6 <- read.table("./bar/NNU-ACE-0010.0.txt", header = FALSE)
+bar7 <- read.table("./bar/SS_NNU_ACE_0199.0.txt", header = FALSE)
+bar8 <- read.table("./bar/SS_NNU_ACE_0200.0.txt", header = FALSE)
+bar9 <- read.table("./bar/SS_NNU_ACE_0202.0.txt", header = FALSE)
+
+## common
+common1  <- read.table("./common/NNU_ACE_0018.0.txt", header = FALSE)
+common2  <- read.table("./common/NNU_ACE_0042.0.txt", header = FALSE)
+common3  <- read.table("./common/NNU_ACE_0043.0.txt", header = FALSE)
+common4  <- read.table("./common/NNU_ACE_0044.0.txt", header = FALSE)
+common5  <- read.table("./common/NNU_ACE_0045.0.txt", header = FALSE)
+common6  <- read.table("./common/NNU_ACE_0046.0.txt", header = FALSE)
+common7  <- read.table("./common/NNU_ACE_0047.0.txt", header = FALSE)
+common8  <- read.table("./common/NNU_ACE_0048.0.txt", header = FALSE)
+common9  <- read.table("./common/NNU-ACE-0012.0.txt", header = FALSE)
+common10 <- read.table("./common/SS_NNU_ACE_0049.0.txt", header = FALSE)
+
+## eastern
+eastern1 <- read.table("./eastern/NNU_ACE_0020.0.txt", header = FALSE)
+eastern2 <- read.table("./eastern/NNU_ACE_0021.0.txt", header = FALSE)
+eastern3 <- read.table("./eastern/NNU_ACE_0022.0.txt", header = FALSE)
+eastern4 <- read.table("./eastern/NNU_ACE_0023.0.txt", header = FALSE)
+eastern5 <- read.table("./eastern/NNU_ACE_0024.0.txt", header = FALSE)
+eastern6 <- read.table("./eastern/NNU_ACE_0068.0.txt", header = FALSE)
+eastern7 <- read.table("./eastern/NNU_ACE_0069.0.txt", header = FALSE)
+eastern8 <- read.table("./eastern/NNU_ACE_0070.0.txt", header = FALSE)
+eastern9 <- read.table("./eastern/NNU-ACE-0005.0.txt", header = FALSE)
+
+## great
+great1  <- read.table("./great/NNU_ACE_0025.0.txt", header = FALSE)
+great2  <- read.table("./great/NNU_ACE_0026.0.txt", header = FALSE)
+great3  <- read.table("./great/NNU_ACE_0027.0.txt", header = FALSE)
+great4  <- read.table("./great/NNU_ACE_0032.0.txt", header = FALSE)
+great5  <- read.table("./great/NNU_ACE_0071.0.txt", header = FALSE)
+great6  <- read.table("./great/NNU-ACE-0004.0.txt", header = FALSE)
+great7  <- read.table("./great/S-NNU-ACE-0028.0.txt", header = FALSE)
+great8  <- read.table("./great/S-NNU-ACE-0029.0.txt", header = FALSE)
+great9  <- read.table("./great/S-NNU-ACE-0030.0.txt", header = FALSE)
+great10 <- read.table("./great/SS_NNU_ACE_0198.0.txt", header = FALSE)
+
+## grey
+grey1  <- read.table("./grey/NNU_ACE_0085.0.txt", header = FALSE)
+grey2  <- read.table("./grey/NNU_ACE_0086.0.txt", header = FALSE)
+grey3  <- read.table("./grey/NNU_ACE_0087.0.txt", header = FALSE)
+grey4  <- read.table("./grey/NNU_ACE_0088.0.txt", header = FALSE)
+grey5  <- read.table("./grey/NNU_ACE_0089.0.txt", header = FALSE)
+grey6  <- read.table("./grey/NNU_ACE_0090.0.txt", header = FALSE)
+grey7  <- read.table("./grey/NNU_ACE_0091.0.txt", header = FALSE)
+grey8  <- read.table("./grey/NNU_ACE_0092.0.txt", header = FALSE)
+grey9  <- read.table("./grey/NNU_ACE_0093.0.txt", header = FALSE)
+grey10 <- read.table("./grey/NNU-ACE-0011.0.txt", header = FALSE)
+
+## red
+red1  <- read.table("./red/NNU_ACE_0072.0.txt", header = FALSE)
+red2  <- read.table("./red/NNU_ACE_0073.0.txt", header = FALSE)
+red3  <- read.table("./red/NNU_ACE_0074.0.txt", header = FALSE)
+red4  <- read.table("./red/NNU_ACE_0076.0.txt", header = FALSE)
+red5  <- read.table("./red/NNU_ACE_0078.0.txt", header = FALSE)
+red6  <- read.table("./red/NNU_ACE_0079.0.txt", header = FALSE)
+red7  <- read.table("./red/NNU_ACE_0080.0.txt", header = FALSE)
+red8  <- read.table("./red/NNU-ACE-0009.0.txt", header = FALSE)
+red9  <- read.table("./red/S-NNU-ACE-0075.0.txt", header = FALSE)
+red10 <- read.table("./red/SS_NNU_ACE_0077.0.txt", header = FALSE)
+
+## ruddy
+ruddy1  <- read.table("./ruddy/NNU_ACE_0050.0.txt", header = FALSE)
+ruddy2  <- read.table("./ruddy/NNU_ACE_0051.0.txt", header = FALSE)
+ruddy3  <- read.table("./ruddy/NNU_ACE_0052.0.txt", header = FALSE)
+ruddy4  <- read.table("./ruddy/NNU_ACE_0053.0.txt", header = FALSE)
+ruddy5  <- read.table("./ruddy/NNU_ACE_0054.0.txt", header = FALSE)
+ruddy6  <- read.table("./ruddy/NNU_ACE_0055.0.txt", header = FALSE)
+ruddy7  <- read.table("./ruddy/NNU_ACE_0056.0.txt", header = FALSE)
+ruddy8  <- read.table("./ruddy/NNU_ACE_0057.0.txt", header = FALSE)
+ruddy9  <- read.table("./ruddy/NNU_ACE_0058.0.txt", header = FALSE)
+ruddy10 <- read.table("./ruddy/NNU-ACE-0007.0.txt", header = FALSE)
+
+## terek
+terek1  <- read.table("./terek/NNU_ACE_0059.0.txt", header = FALSE)
+terek2  <- read.table("./terek/NNU_ACE_0060.0.txt", header = FALSE)
+terek3  <- read.table("./terek/NNU_ACE_0061.0.txt", header = FALSE)
+terek4  <- read.table("./terek/NNU_ACE_0062.0.txt", header = FALSE)
+terek5  <- read.table("./terek/NNU_ACE_0063.0.txt", header = FALSE)
+terek6  <- read.table("./terek/NNU_ACE_0064.0.txt", header = FALSE)
+terek7  <- read.table("./terek/NNU_ACE_0065.0.txt", header = FALSE)
+terek8  <- read.table("./terek/NNU_ACE_0066.0.txt", header = FALSE)
+terek9  <- read.table("./terek/NNU_ACE_0067.0.txt", header = FALSE)
+terek10 <- read.table("./terek/NNU-ACE-0008.0.txt", header = FALSE)
+## 定义函数：计算调和平均值
+##    排除最近4个时间区间
+calc_hmean_psmc <- function(dat, exclude_recent = 4, exclude_oldest = 0) {
+  ## dat: 第1列为时间，第2列为 Ne
+  
+  ## 至少要有两列
+  if (ncol(dat) < 2) {
+    warning("数据少于2列，返回 NA")
+    return(NA_real_)
+  }
+  
+  ## 按时间从小到大排序：最近 -> 最古老
+  dat <- dat[order(dat[, 1]), , drop = FALSE]
+  
+  ## 检查是否还有足够数据
+  n <- nrow(dat)
+  if (n <= (exclude_recent + exclude_oldest)) {
+    warning("时间节点数不足，无法同时排除最近和最古老的时间节点，返回 NA")
+    return(NA_real_)
+  }
+  
+  ## 保留中间区间
+  dat_use <- dat[(exclude_recent + 1):(n - exclude_oldest), , drop = FALSE]
+  
+  ## 去掉无效 Ne
+  dat_use <- dat_use[is.finite(dat_use[, 2]) & dat_use[, 2] > 0, , drop = FALSE]
+  
+  if (nrow(dat_use) == 0) {
+    warning("排除后没有有效 Ne，返回 NA")
+    return(NA_real_)
+  }
+  
+  ## 调和平均值
+  hmean <- nrow(dat_use) / sum(1 / dat_use[, 2])
+  return(hmean)
+}
+
+# 2. 定义函数：按物种批量计算并保存 csv
+save_species_hmean <- function(prefix) {
+  ## 抓取当前环境中该物种对象，例如 spoon1, spoon2, ...
+  obj_names <- ls(pattern = paste0("^", prefix, "[0-9]+$"), envir = .GlobalEnv)
+  
+  if (length(obj_names) == 0) {
+    warning(paste("没有找到对象：", prefix))
+    return(NULL)
+  }
+  
+  ## 按编号排序
+  obj_num <- as.integer(sub(paste0("^", prefix), "", obj_names))
+  obj_names <- obj_names[order(obj_num)]
+  
+  ## 逐个计算
+  res <- data.frame(
+    individual = obj_names,
+    harmonic_mean_Ne = sapply(obj_names, function(x) {
+      calc_hmean_psmc(get(x, envir = .GlobalEnv), exclude_recent = 4)
+    }),
+    stringsAsFactors = FALSE
+  )
+  
+  ## 保存
+  out_file <- paste0(prefix, "_harmonic_mean_Ne.csv")
+  write.csv(res, out_file, row.names = FALSE)
+  
+  return(res)
+}
+
+## 依次计算每个物种
+species_order <- c("spoon", "bar", "common", "eastern",
+                   "great", "grey", "red", "ruddy", "terek")
+
+result_list <- lapply(species_order, save_species_hmean)
+names(result_list) <- species_order
+#画图
+library(multcompView)
+
+files <- paste0(species_order, "_harmonic_mean_Ne.csv")
+
+plot_list <- list()
+summary_df <- data.frame(
+  species = species_order,
+  mean = NA_real_,
+  sd = NA_real_,
+  n = NA_integer_,
+  stringsAsFactors = FALSE
+)
+
+all_df <- data.frame(species = character(), value = numeric(), stringsAsFactors = FALSE)
+
+for (i in seq_along(species_order)) {
+  sp <- species_order[i]
+  f <- files[i]
+  
+  dat <- read.csv(f, stringsAsFactors = FALSE)
+  vals <- na.omit(dat$harmonic_mean_Ne)
+  
+  plot_list[[sp]] <- vals
+  
+  summary_df$mean[i] <- mean(vals)
+  summary_df$sd[i]   <- sd(vals)
+  summary_df$n[i]    <- length(vals)
+  
+  all_df <- rbind(
+    all_df,
+    data.frame(species = sp, value = vals, stringsAsFactors = FALSE)
+  )
+}
+
+all_df$species <- factor(all_df$species, levels = species_order)
+
+kw_res <- kruskal.test(value ~ species, data = all_df)
+print(kw_res)
+
+pw_res <- pairwise.wilcox.test(all_df$value, all_df$species,
+                               p.adjust.method = "BH",
+                               exact = FALSE)
+print(pw_res)
+
+p_mat <- pw_res$p.value
+p_vec <- c()
+
+for (i in seq_len(nrow(p_mat))) {
+  for (j in seq_len(ncol(p_mat))) {
+    if (!is.na(p_mat[i, j])) {
+      nm <- paste(rownames(p_mat)[i], colnames(p_mat)[j], sep = "-")
+      p_vec[nm] <- p_mat[i, j]
+    }
+  }
+}
+
+letters_res <- multcompLetters(p_vec, threshold = 0.05)$Letters
+letters_res <- letters_res[species_order]
+
+x_labs <- paste0(
+  toupper(species_order),
+  "\nmean=", round(summary_df$mean, 2),
+  "\nsd=", round(summary_df$sd, 2)
+)
+
+bp_stats <- boxplot(plot_list[species_order], plot = FALSE)
+y_min <- min(unlist(plot_list), na.rm = TRUE)
+y_max <- max(unlist(plot_list), na.rm = TRUE)
+y_offset <- 0.05 * (y_max - y_min)
+letter_y <- bp_stats$stats[5, ] + y_offset
+
+par(mar = c(8, 5, 3, 1))   # 下边距加大，容纳多行x轴标签
+
+species_cols <- c(
+  bar = "#EBC15B",
+  common = "#F9D71C",
+  eastern = "#D1A146",
+  great = "#ECF700",
+  grey = "#AF780A",
+  red = "#A6E800",
+  ruddy = "#267300",
+  spoon = "#5DB300",
+  terek = "#C04800"
+)
+boxplot(plot_list[species_order],
+        names = x_labs,
+        col = species_cols[species_order],
+        border = "black",
+        outline = FALSE,
+        boxwex = 0.5,
+        ylab = "Harmonic mean Ne",
+        las = 1,
+        cex.axis = 0.8,
+        ylim = c(y_min, max(letter_y, na.rm = TRUE) + y_offset))
+text(x = seq_along(species_order),
+     y = letter_y,
+     labels = letters_res,
+     cex = 1,
+     font = 2)
+
+mtext(paste0("Kruskal-Wallis p = ", signif(kw_res$p.value, 3)),
+      side = 3, line = 0.5, cex = 0.9)
+
