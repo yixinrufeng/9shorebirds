@@ -1,0 +1,23 @@
+#!/bin/bash
+for i in Bar-tailed Common_Snipe Far_Eastern Great_Knot Grey-tailed Red-necked Ruddy_Turnstone Spoon-billed Terek
+do
+        vcftools --vcf /path/auto.nomissing.recode.vcf.recode.vcf --keep ./$i --recode --recode-INFO-all --out $i
+        vcftools --vcf ./$i.recode.vcf --recode --recode-INFO-all --max-missing 1.0 --out $i.nomissing
+        bgzip -f $i.nomissing.recode.vcf $i.nomissing.recode.vcf.gz
+        tabix -p vcf $i.nomissing.recode.vcf.gz
+bcftools view -r NW_015090810.1,NW_015090812.1,NW_015090830.1,NW_015090842.1,NW_015090893.1,NW_015090922.1,NW_015090990.1,NW_015090995.1,NW_015094506.1,NW_015094509.1,NW_015094510.1 \
+        $i.nomissing.recode.vcf.gz -Oz -o $i.vcf.gz
+tabix -f -p vcf $i.vcf.gz
+bcftools annotate --rename-chrs chr_map.txt $i.vcf.gz -Oz -o $i.renamed.vcf.gz
+tabix -f -p vcf $i.renamed.vcf.gz
+plink --vcf $i.renamed.vcf.gz \
+      --double-id \
+      --recode \
+      --out "$i"_gone
+gunzip $i.renamed.vcf.gz
+mv $i.renamed.vcf "$i"_gone.vcf
+        for j in {1..100}
+        do
+        gone2  -s 100000 -r 1 "$i"_gone.vcf -o $i.$j
+        done
+done
