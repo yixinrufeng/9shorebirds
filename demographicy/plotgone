@@ -2,30 +2,136 @@ setwd("path")
 ## 文件前缀
 prefix <- "Spoon-billed"
 
-## 读入 1 到 100 的文件
 gone_list <- lapply(1:100, function(i) {
   f <- paste0(prefix, ".", i, "_GONE2_Ne")
   x <- read.table(f, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
   x <- x[x$Generation <= 200, ]   # 只保留 200 个世代以内
   return(x)
 })
+## 合并所有数据
+all_dat <- do.call(rbind, lapply(seq_along(gone_list), function(i) {
+  x <- gone_list[[i]]
+  x$replicate <- i
+  x
+}))
 
-## 先建立空图
-plot(NA, NA,
-     xlim = c(0, 150),
-     ylim = range(sapply(gone_list, function(x) x$Ne_diploids), na.rm = TRUE),
+## 确保列为数值型
+all_dat$Generation <- as.numeric(all_dat$Generation)
+all_dat$Ne_diploids <- as.numeric(all_dat$Ne_diploids)
+
+## 按 Generation 计算 geometric mean 和 95% CI
+gen_summary <- do.call(rbind, lapply(split(all_dat$Ne_diploids, all_dat$Generation), function(vals) {
+  vals <- vals[is.finite(vals) & vals > 0]   # 几何平均值要求 > 0
+  n <- length(vals)
+  
+  if (n == 0) {
+    return(data.frame(
+      gmean = NA_real_,
+      sdlog = NA_real_,
+      n = 0,
+      selog = NA_real_,
+      lower95 = NA_real_,
+      upper95 = NA_real_
+    ))
+  }
+  
+  log_vals <- log(vals)
+  mlog <- mean(log_vals)
+  sdlog <- sd(log_vals)
+  selog <- sdlog / sqrt(n)
+  
+  ## n=1 时 t 分布会有问题，这里单独处理
+  if (n > 1) {
+    tval <- qt(0.975, df = n - 1)
+    lower95 <- exp(mlog - tval * selog)
+    upper95 <- exp(mlog + tval * selog)
+  } else {
+    lower95 <- exp(mlog)
+    upper95 <- exp(mlog)
+  }
+  
+  data.frame(
+    gmean = exp(mlog),
+    sdlog = sdlog,
+    n = n,
+    selog = selog,
+    lower95 = lower95,
+    upper95 = upper95
+  )
+}))
+
+## 把 Generation 变回一列
+gen_summary$Generation <- as.numeric(rownames(gen_summary))
+rownames(gen_summary) <- NULL
+
+## 按 Generation 排序
+gen_summary <- gen_summary[order(gen_summary$Generation), ]
+
+print(gen_summary)
+## 设置颜色
+line_col <- "#5DB300"   # spoon 绿色
+shade_col <- adjustcolor("#5DB300", alpha.f = 0.25)
+
+## 先画空图
+plot(gen_summary$Generation, gen_summary$gmean,
+     type = "n",
+     xlim = c(0, 100),
+     ylim = range(c(gen_summary$lower95, gen_summary$upper95), na.rm = TRUE),
      xlab = "Generation",
      ylab = "Ne",
-     main = paste0(prefix, " GONE Ne"),
-     type = "n",
-     xaxt = "n")   # 先不画默认x轴
+     main = paste0(prefix, " GONE geometric mean Ne with 95% CI"),
+     xaxt = "n")
 
-for (i in 1:100) {
-  lines(gone_list[[i]]$Generation,
-        gone_list[[i]]$Ne_diploids,
-        col = "#5DB300",
-        lwd = 2)
+## 95% CI 阴影
+polygon(x = c(gen_summary$Generation, rev(gen_summary$Generation)),
+        y = c(gen_summary$lower95, rev(gen_summary$upper95)),
+        col = shade_col,
+        border = NA)
+
+## geometric mean 曲线
+lines(gen_summary$Generation, gen_summary$gmean,
+      col = line_col,
+      lwd = 2)
+
+## x轴：每5一个刻度，只在0,50,100,150,200显示数字
+axis(1, at = seq(0, 100, by = 5), labels = FALSE, tcl = -0.3)
+axis(1, at = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100), labels = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100), tcl = -0.5)
+
+## 图例
+legend("bottomright",
+       legend = c("Geometric mean Ne", "95% CI"),
+       col = c(line_col, shade_col),
+       lty = c(1, NA),
+       lwd = c(2, NA),
+       pch = c(NA, 15),
+       pt.cex = c(NA, 2),
+       bty = "n")
+write.csv(gen_summary, paste0(prefix, "_geometric_mean_95CI_by_generation.csv"), row.names = FALSE)
+## 提取 generation 4 和 5 的 Ne，并计算 (Ne5 - Ne4) / Ne5
+res_df <- data.frame(
+  individual = paste0(prefix, ".", 1:length(gone_list)),
+  Ne_gen4 = NA_real_,
+  Ne_gen5 = NA_real_,
+  ratio = NA_real_,
+  stringsAsFactors = FALSE
+)
+
+for (i in seq_along(gone_list)) {
+  dat <- gone_list[[i]]
+  
+  ## 提取 Generation 4 和 5 对应的 Ne
+  ne4 <- dat$Ne_diploids[dat$Generation == 4]
+  ne5 <- dat$Ne_diploids[dat$Generation == 5]
+  
+  ## 如果某个文件里没有对应 generation，返回 NA
+  if (length(ne4) == 1 && length(ne5) == 1 && is.finite(ne5) && ne5 != 0) {
+    res_df$Ne_gen4[i] <- ne4
+    res_df$Ne_gen5[i] <- ne5
+    res_df$ratio[i] <- (ne5 - ne4) / ne5
+  }
 }
 
-axis(1, at = seq(0, 150, by = 5), labels = FALSE, tcl = -0.3)
-axis(1, at = c(0, 50, 100, 150), labels = c(0, 50, 100, 150), tcl = -0.5)
+## 查看结果
+print(res_df)
+write.csv(res_df, paste0(prefix, "_Gen4_Gen5_ratio.csv"), row.names = FALSE)
+
