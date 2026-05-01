@@ -1,1 +1,2 @@
 #https://github.com/harvardinformatics/degenotate
+#the name of the sequence in reference only permit in ">xxxx", ">xxxx namexxx" is can not be permit
