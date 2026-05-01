@@ -1,0 +1,22 @@
+#修改 snpEff.config
+data.dir = /path/01database
+#在文件末尾加入：
+# Custom genome database#ASM143184v1是物种名字
+ASM143184v1.genome : ASM143184v1
+###以上是修改config文件
+cd /path/01database
+mkdir ASM143184v1
+cd ASM143184v1
+# Get annotation files, genome reference(sequences.fa), cds.fa protein.fa
+cp /path/GCF_001431845.1_ASM143184v1_genomic.fna ./sequences.fa
+cp /path/GCF_001431845.1_ASM143184v1_genomic.gff ./genes.gff
+cp /path/GCF_001431845.1_ASM143184v1_cds_from_genomic.fna ./cds.fa
+cp /path/GCF_001431845.1_ASM143184v1_protein.faa ./protein.fa
+#buid database
+java -Xmx20g -jar /path/snpEff.jar build -gff3 -v ASM143184v1
+#annotate
+java -Xmx8g -jar snpEff.jar ann \
+  -v \
+  ASM143184v1 \
+  /path/to/xx.vcf \
+  > xx.ASM143184v1.snpeff.ann.vcf
