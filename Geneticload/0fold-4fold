@@ -1,2 +1,68 @@
 #https://github.com/harvardinformatics/degenotate
 #the name of the sequence in reference only permit in ">xxxx", ">xxxx namexxx" is can not be permit
+#conda create -n degenotate -c conda-forge -c bioconda degenotate
+#conda activate degenotate
+# conda deactivate
+#!/bin/bash
+cp /path/GCF_001431845.1_ASM143184v1_genomic.fna .
+sed -i '/^>/ s/ .*//' GCF_001431845.1_ASM143184v1_genomic.fna
+REF=./GCF_001431845.1_ASM143184v1_genomic.fna
+GFF=/path/GCF_001431845.1_ASM143184v1_genomic.gff
+OUT=./output/
+for i in Bar-tailed
+do
+        vcftools --vcf /path/auto.nomissing.recode.vcf.recode.vcf --keep ./$i --recode --recode-INFO-all --out $i
+        vcftools --vcf ./$i.recode.vcf --recode --recode-INFO-all --max-missing 1.0 --out $i.nomissing
+        cat $i.nomissing.recode.vcf | grep "#" >head
+        cat $i.nomissing.recode.vcf | grep -v "#" >body.txt
+        for j in {1..100}
+        do
+        shuf -n 1000000 body.txt > random.txt
+        cat head random.txt >>new.vcf
+        bcftools sort new.vcf -Oz -o new.sorted.vcf.gz
+        tabix -p vcf new.sorted.vcf.gz
+        rm new.vcf
+        degenotate.py -a $GFF -g $REF -o $OUT --overwrite
+        #  提取 0-fold 和 4-fold 位点
+awk 'BEGIN{OFS="\t"} $5==0 {print $1,$2,$3}' \
+  $OUT/degeneracy-all-sites.bed \
+  | sort -k1,1 -k2,2n -k3,3n \
+  | bedtools merge \
+  > 0fold.sites.bed
+
+awk 'BEGIN{OFS="\t"} $5==4 {print $1,$2,$3}' \
+  $OUT/degeneracy-all-sites.bed \
+  | sort -k1,1 -k2,2n -k3,3n \
+  | bedtools merge \
+  > 4fold.sites.bed
+
+#  计算 π0 和 π4
+vcftools --gzvcf new.sorted.vcf.gz --bed 0fold.sites.bed --site-pi --out pi_0fold
+vcftools --gzvcf new.sorted.vcf.gz --bed 4fold.sites.bed --site-pi --out pi_4fold
+
+L0=$(awk '{sum += $3-$2} END{print sum}' 0fold.sites.bed)
+L4=$(awk '{sum += $3-$2} END{print sum}' 4fold.sites.bed)
+
+SUMPI0=$(awk 'NR>1 {sum += $3} END{print sum+0}' pi_0fold.sites.pi)
+SUMPI4=$(awk 'NR>1 {sum += $3} END{print sum+0}' pi_4fold.sites.pi)
+
+awk -v s0=$SUMPI0 -v l0=$L0 -v s4=$SUMPI4 -v l4=$L4 'BEGIN{
+  pi0 = s0/l0
+  pi4 = s4/l4
+  print "pi0 =", pi0
+  print "pi4 =", pi4
+  print "pi0/pi4 =", pi0/pi4
+}' >$i.$j.pi04.txt
+rm random.txt
+rm new.sorted.vcf.gz
+rm new.sorted.vcf.gz.tbi
+rm *.bed
+rm pi_0fold.sites.pi
+rm pi_4fold.sites.pi
+        done
+rm ./$i.recode.vcf
+rm $i.nomissing.recode.vcf
+rm head
+rm body.txt
+
+done
