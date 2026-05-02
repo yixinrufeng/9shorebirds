@@ -1,0 +1,49 @@
+#!/bin/bash
+cp /path/GCF_001431845.1_ASM143184v1_genomic.fna .
+sed -i '/^>/ s/ .*//' GCF_001431845.1_ASM143184v1_genomic.fna
+REF=./GCF_001431845.1_ASM143184v1_genomic.fna
+GFF=/path/GCF_001431845.1_ASM143184v1_genomic.gff
+OUT=./output/
+#extract vcf that include outgroup
+for i in Bar-tailed
+do
+        vcftools --vcf /path/auto.nomissing.recode.vcf.recode.vcf --keep ./$i --recode --recode-INFO-all --out $i
+        vcftools --vcf ./$i.recode.vcf --recode --recode-INFO-all --max-missing 1.0 --out $i.nomissing
+        cat $i.nomissing.recode.vcf | grep "#" >head
+        cat $i.nomissing.recode.vcf | grep -v "#" >body.txt
+        for j in {1..100}
+        do
+        shuf -n 1000000 body.txt > random.txt
+        cat head random.txt >>new.vcf
+        bcftools sort new.vcf -Oz -o new.sorted.vcf.gz
+        tabix -p vcf new.sorted.vcf.gz
+        rm new.vcf
+        degenotate.py \
+  -a $GFF \
+  -g $REF \
+  -v ./new.sorted.vcf.gz \
+  -u ./outgroup \
+  -o degenotate_mk \
+  -sfs \
+  --overwrite
+
+awk 'NR>1{
+  pn += $2
+  ps += $3
+}
+END{
+  print "pN =", pn
+  print "pS =", ps
+  if (ps > 0) print "pN/pS =", pn/ps
+  else print "pN/pS = NA"
+}' ./degenotate_mk/mk.tsv >>$i.pnps.txt
+rm -r degenotate_mk
+rm random.txt
+rm new.sorted.vcf.gz
+rm new.sorted.vcf.gz.tbi
+        done
+rm ./$i.recode.vcf
+rm $i.nomissing.recode.vcf
+rm head
+rm body.txt
+done
