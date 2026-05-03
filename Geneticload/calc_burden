@@ -1,0 +1,20 @@
+#!/bin/bash
+#chmod +x calc_derived_burden.sh
+#extract vcf that include outgroup
+for i in all
+do
+        vcftools --vcf /raid6/bird/wpc/project/mke/09snpeff/02anno/all.snpeff.ann.vcf --keep ./$i --recode --recode-INFO-all --out $i
+        vcftools --vcf ./$i.recode.vcf --recode --recode-INFO-all --max-missing 1.0 --out $i.nomissing
+        bcftools norm -m -any $i.nomissing.recode.vcf -Oz -o xx.split.vcf.gz
+        bcftools index xx.split.vcf.gz
+USE_ONLY_REF_ANCESTRAL=0 ./calc_derived_burden.sh \
+  xx.split.vcf.gz \
+  outgroup.txt \
+  Bar-tailed.txt \
+  result.keep_alt_ancestral
+##cat
+rm $i.recode.vcf
+rm $i.nomissing.recode.vcf
+rm xx.split.vcf.gz
+rm xx.split.vcf.gz.csi
+done
