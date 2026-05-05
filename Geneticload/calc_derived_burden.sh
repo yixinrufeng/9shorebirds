@@ -34,8 +34,8 @@ lof_terms = {
     "transcript_ablation",
     "splice_donor_variant",
     "splice_acceptor_variant",
-	"start_lost",
-	"stop_lost",
+    "start_lost",
+    "stop_lost",
     "stop_gained",
     "frameshift_variant",
     "inframe_insertion",
@@ -47,8 +47,9 @@ lof_terms = {
     "disruptive_inframe_deletion"
 }
 
-# Nonsynonymous here means LoF + missense/start/stop changing variants
-nonsyn_extra_terms = {
+# Missense means missense_variant only.
+# LoF is NOT counted into missense in this modified version.
+missense_terms = {
     "missense_variant",
 }
 
@@ -151,14 +152,16 @@ def get_ann_effects(info):
 def classify_effect(effects):
     """
     Priority for multi-transcript annotations:
-      LoF > nonsynonymous > synonymous > other
+      LoF > missense > synonymous > other
 
-    LoF sites are also counted into nonsynonymous burden later.
+    In this modified version:
+      LoF and missense are counted separately.
+      Missense does NOT include LoF.
     """
     if effects & lof_terms:
         return "lof"
-    if effects & nonsyn_extra_terms:
-        return "nonsyn"
+    if effects & missense_terms:
+        return "missense"
     if effects & syn_terms:
         return "syn"
     return "other"
@@ -194,10 +197,10 @@ def safe_div(a, b):
 def calc_metrics(c):
     lof_copies = 2 * c["lof_hom"] + c["lof_het"]
     syn_copies = 2 * c["syn_hom"] + c["syn_het"]
-    nonsyn_copies = 2 * c["nonsyn_hom"] + c["nonsyn_het"]
+    missense_copies = 2 * c["missense_hom"] + c["missense_het"]
 
     lof_over_syn = safe_div(lof_copies, syn_copies)
-    nonsyn_over_syn = safe_div(nonsyn_copies, syn_copies)
+    missense_over_syn = safe_div(missense_copies, syn_copies)
 
     lof_hom_frac = safe_div(2 * c["lof_hom"], lof_copies)
     syn_hom_frac = safe_div(2 * c["syn_hom"], syn_copies)
@@ -218,9 +221,9 @@ def calc_metrics(c):
     return {
         "lof_copies": lof_copies,
         "syn_copies": syn_copies,
-        "nonsyn_copies": nonsyn_copies,
+        "missense_copies": missense_copies,
         "lof_over_syn": lof_over_syn,
-        "nonsyn_over_syn": nonsyn_over_syn,
+        "missense_over_syn": missense_over_syn,
         "lof_hom_frac": lof_hom_frac,
         "syn_hom_frac": syn_hom_frac,
         "lof_hom_frac_over_syn_hom_frac": hom_frac_ratio,
@@ -229,15 +232,17 @@ def calc_metrics(c):
         "lof_het_frac_over_syn_het_frac": het_frac_ratio
     }
 
+
 def fmt(x):
     if x == "NA":
         return "NA"
     if isinstance(x, int):
         return str(x)
     if isinstance(x, float):
-        # 避免科学计数法，保留足够精度
-        return f"{x:.10f}".rstrip('0').rstrip('.')
+        # Avoid scientific notation and keep enough precision
+        return f"{x:.10f}".rstrip("0").rstrip(".")
     return str(x)
+
 
 outgroups = read_list(outgroup_file)
 targets = read_list(target_file)
@@ -257,6 +262,7 @@ counts = {
 }
 
 stats = defaultdict(int)
+header_seen = False
 
 with open_maybe_gzip(vcf_file) as f:
     for line in f:
@@ -266,6 +272,7 @@ with open_maybe_gzip(vcf_file) as f:
             continue
 
         if line.startswith("#CHROM"):
+            header_seen = True
             header = line.split("\t")
             samples = header[9:]
             sample_to_col = {s: i + 9 for i, s in enumerate(samples)}
@@ -285,10 +292,14 @@ with open_maybe_gzip(vcf_file) as f:
         if not line or line.startswith("#"):
             continue
 
+        if not header_seen:
+            sys.exit("ERROR: VCF header line '#CHROM' was not found before variant records.")
+
         stats["total_records"] += 1
         fields = line.split("\t")
 
         if len(fields) < 10:
+            stats["skip_malformed_record"] += 1
             continue
 
         ref = fields[3].upper()
@@ -321,8 +332,8 @@ with open_maybe_gzip(vcf_file) as f:
 
         # Important:
         # SnpEff ANN describes ALT relative to REF.
-        # For LoF burden, safest is to keep only sites where ancestral=REF,
-        # so ALT is the derived allele.
+        # For derived LoF / missense / synonymous burden, the safest option is to keep
+        # only sites where ancestral=REF, so ALT is the derived allele.
         if use_only_ref_ancestral and ancestral_code != 0:
             stats["skip_ancestral_ALT_due_to_strict_mode"] += 1
             continue
@@ -357,16 +368,14 @@ with open_maybe_gzip(vcf_file) as f:
             if category == "lof":
                 if dstate == 2:
                     counts[s]["lof_hom"] += 1
-                    counts[s]["nonsyn_hom"] += 1
                 elif dstate == 1:
                     counts[s]["lof_het"] += 1
-                    counts[s]["nonsyn_het"] += 1
 
-            elif category == "nonsyn":
+            elif category == "missense":
                 if dstate == 2:
-                    counts[s]["nonsyn_hom"] += 1
+                    counts[s]["missense_hom"] += 1
                 elif dstate == 1:
-                    counts[s]["nonsyn_het"] += 1
+                    counts[s]["missense_het"] += 1
 
             elif category == "syn":
                 if dstate == 2:
@@ -384,9 +393,9 @@ columns = [
     "sample",
     "lof_hom", "lof_het", "lof_copies",
     "syn_hom", "syn_het", "syn_copies",
-    "nonsyn_hom", "nonsyn_het", "nonsyn_copies",
+    "missense_hom", "missense_het", "missense_copies",
     "lof_over_syn",
-    "nonsyn_over_syn",
+    "missense_over_syn",
     "lof_hom_frac", "syn_hom_frac", "lof_hom_frac_over_syn_hom_frac",
     "lof_het_frac", "syn_het_frac", "lof_het_frac_over_syn_het_frac"
 ]
@@ -402,9 +411,9 @@ with open(out_tsv, "w") as out:
             s,
             c["lof_hom"], c["lof_het"], m["lof_copies"],
             c["syn_hom"], c["syn_het"], m["syn_copies"],
-            c["nonsyn_hom"], c["nonsyn_het"], m["nonsyn_copies"],
+            c["missense_hom"], c["missense_het"], m["missense_copies"],
             m["lof_over_syn"],
-            m["nonsyn_over_syn"],
+            m["missense_over_syn"],
             m["lof_hom_frac"], m["syn_hom_frac"], m["lof_hom_frac_over_syn_hom_frac"],
             m["lof_het_frac"], m["syn_het_frac"], m["lof_het_frac_over_syn_het_frac"]
         ]
@@ -427,9 +436,9 @@ with open(out_group, "w") as out:
         "ALL_TARGETS",
         group_counts["lof_hom"], group_counts["lof_het"], group_metrics["lof_copies"],
         group_counts["syn_hom"], group_counts["syn_het"], group_metrics["syn_copies"],
-        group_counts["nonsyn_hom"], group_counts["nonsyn_het"], group_metrics["nonsyn_copies"],
+        group_counts["missense_hom"], group_counts["missense_het"], group_metrics["missense_copies"],
         group_metrics["lof_over_syn"],
-        group_metrics["nonsyn_over_syn"],
+        group_metrics["missense_over_syn"],
         group_metrics["lof_hom_frac"], group_metrics["syn_hom_frac"], group_metrics["lof_hom_frac_over_syn_hom_frac"],
         group_metrics["lof_het_frac"], group_metrics["syn_het_frac"], group_metrics["lof_het_frac_over_syn_het_frac"]
     ]
