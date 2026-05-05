@@ -34,6 +34,8 @@ lof_terms = {
     "transcript_ablation",
     "splice_donor_variant",
     "splice_acceptor_variant",
+	"start_lost",
+	"stop_lost",
     "stop_gained",
     "frameshift_variant",
     "inframe_insertion",
@@ -48,9 +50,6 @@ lof_terms = {
 # Nonsynonymous here means LoF + missense/start/stop changing variants
 nonsyn_extra_terms = {
     "missense_variant",
-    "start_lost",
-    "stop_lost",
-    "initiator_codon_variant"
 }
 
 syn_terms = {
