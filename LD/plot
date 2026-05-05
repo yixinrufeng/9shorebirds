@@ -1,0 +1,241 @@
+setwd("D:/temp/new/")
+
+species_names <- c(
+  "Common_Snipe",
+  "Far_Eastern",
+  "Great_Knot",
+  "Grey-tailed",
+  "Red-necked",
+  "Ruddy_Turnstone",
+  "Spoon-billed",
+  "Terek",
+  "Bar-tailed"
+)
+
+n_rep <- 10
+
+## 读取单个 PopLDdecay stat 文件
+read_poplddecay_stat <- function(file, rep_id, species) {
+  
+  dat <- read.table(
+    file,
+    header = TRUE,
+    comment.char = "",
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+  
+  ## 防止第一列列名是 #Dist
+  colnames(dat)[1] <- gsub("^#", "", colnames(dat)[1])
+  
+  ## PopLDdecay 的 .stat 文件通常：
+  ## 第 1 列 = distance
+  ## 第 2 列 = mean R2
+  out <- data.frame(
+    species = species,
+    replicate = rep_id,
+    distance = dat[[1]],
+    r2 = dat[[2]]
+  )
+  
+  return(out)
+}
+
+## 4. 依次读取所有物种、所有重复
+all_list <- list()
+k <- 1
+
+for (sp in species_names) {
+  
+  files <- paste0(sp, ".", 1:n_rep, ".stat")
+  
+  ## 如果你的文件是 .stat.gz，把上一行改成：
+  ## files <- paste0(sp, ".", 1:n_rep, ".stat.gz")
+  
+  if (!all(file.exists(files))) {
+    missing_files <- files[!file.exists(files)]
+    stop(
+      "Missing files for species ", sp, ": ",
+      paste(missing_files, collapse = ", ")
+    )
+  }
+  
+  for (i in seq_along(files)) {
+    all_list[[k]] <- read_poplddecay_stat(
+      file = files[i],
+      rep_id = i,
+      species = sp
+    )
+    k <- k + 1
+  }
+}
+
+ld_all <- do.call(rbind, all_list)
+
+## 保存所有重复的长格式数据
+write.table(
+  ld_all,
+  file = "LD_decay.all_species.all_replicates.long.tsv",
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE
+)
+
+## 计算每个物种、每个距离窗口的均值
+mean_list <- list()
+
+for (sp in species_names) {
+  
+  sub <- ld_all[ld_all$species == sp, ]
+  
+  mean_r2 <- tapply(sub$r2, sub$distance, mean, na.rm = TRUE)
+  sd_r2   <- tapply(sub$r2, sub$distance, sd, na.rm = TRUE)
+  n_eff   <- tapply(sub$r2, sub$distance, function(x) sum(!is.na(x)))
+  se_r2   <- sd_r2 / sqrt(n_eff)
+  
+  tmp <- data.frame(
+    species = sp,
+    distance = as.numeric(names(mean_r2)),
+    mean_r2 = as.numeric(mean_r2),
+    sd_r2 = as.numeric(sd_r2),
+    n_rep = as.numeric(n_eff),
+    se_r2 = as.numeric(se_r2)
+  )
+  
+  tmp <- tmp[order(tmp$distance), ]
+  
+  mean_list[[sp]] <- tmp
+}
+
+ld_mean <- do.call(rbind, mean_list)
+
+## 保存均值结果
+write.table(
+  ld_mean,
+  file = "LD_decay.all_species.mean_10reps.tsv",
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE
+)
+
+##  Base R 画图：9 个物种画在一起
+## 读取均值文件
+ld_mean <- read.table(
+  "LD_decay.all_species.mean_10reps.tsv",
+  header = TRUE,
+  sep = "\t",
+  stringsAsFactors = FALSE
+)
+
+## 你的 9 个物种名字
+species_names <- c(
+  "Common_Snipe",
+  "Far_Eastern",
+  "Great_Knot",
+  "Grey-tailed",
+  "Red-necked",
+  "Ruddy_Turnstone",
+  "Spoon-billed",
+  "Terek",
+  "Bar-tailed"
+)
+
+## 检查物种名是否都存在
+setdiff(species_names, unique(ld_mean$species))
+
+## 如果 distance 是 bp，这里转为 kb
+ld_mean$distance_kb <- ld_mean$distance / 1000
+
+## 分别提取每个物种
+common <- ld_mean[ld_mean$species == "Common_Snipe", ]
+far_eastern <- ld_mean[ld_mean$species == "Far_Eastern", ]
+great_knot <- ld_mean[ld_mean$species == "Great_Knot", ]
+grey_tailed <- ld_mean[ld_mean$species == "Grey-tailed", ]
+red_necked <- ld_mean[ld_mean$species == "Red-necked", ]
+ruddy <- ld_mean[ld_mean$species == "Ruddy_Turnstone", ]
+spoon <- ld_mean[ld_mean$species == "Spoon-billed", ]
+terek <- ld_mean[ld_mean$species == "Terek", ]
+bar_tailed <- ld_mean[ld_mean$species == "Bar-tailed", ]
+
+## 按距离排序
+common <- common[order(common$distance_kb), ]
+far_eastern <- far_eastern[order(far_eastern$distance_kb), ]
+great_knot <- great_knot[order(great_knot$distance_kb), ]
+grey_tailed <- grey_tailed[order(grey_tailed$distance_kb), ]
+red_necked <- red_necked[order(red_necked$distance_kb), ]
+ruddy <- ruddy[order(ruddy$distance_kb), ]
+spoon <- spoon[order(spoon$distance_kb), ]
+terek <- terek[order(terek$distance_kb), ]
+bar_tailed <- bar_tailed[order(bar_tailed$distance_kb), ]
+
+## 设置颜色
+cols <- c(
+  "Common_Snipe" = "black",
+  "Far_Eastern" = "red",
+  "Great_Knot" = "blue",
+  "Grey-tailed" = "darkgreen",
+  "Red-necked" = "purple",
+  "Ruddy_Turnstone" = "orange",
+  "Spoon-billed" = "brown",
+  "Terek" = "deepskyblue3",
+  "Bar-tailed" = "deeppink3"
+)
+
+## 坐标轴范围
+xlim_use <- range(ld_mean$distance_kb, na.rm = TRUE)
+ylim_use <- range(ld_mean$mean_r2, na.rm = TRUE)
+
+par(
+  mar = c(5, 5, 3, 2),
+  mgp = c(2.7, 0.8, 0),
+  tcl = -0.3
+)
+
+## 先画第一个物种
+plot(
+  common$distance_kb,
+  common$mean_r2,
+  type = "l",
+  lwd = 2,
+  col = cols["Common_Snipe"],
+  xlim = xlim_use,
+  ylim = ylim_use,
+  xlab = "Physical distance (kb)",
+  ylab = expression(mean~LD~italic(R)^2),
+  las = 1,
+  bty = "l"
+)
+
+## 逐个添加其他物种
+lines(far_eastern$distance_kb, far_eastern$mean_r2,
+      col = cols["Far_Eastern"], lwd = 2)
+
+lines(great_knot$distance_kb, great_knot$mean_r2,
+      col = cols["Great_Knot"], lwd = 2)
+
+lines(grey_tailed$distance_kb, grey_tailed$mean_r2,
+      col = cols["Grey-tailed"], lwd = 2)
+
+lines(red_necked$distance_kb, red_necked$mean_r2,
+      col = cols["Red-necked"], lwd = 2)
+
+lines(ruddy$distance_kb, ruddy$mean_r2,
+      col = cols["Ruddy_Turnstone"], lwd = 2)
+
+lines(spoon$distance_kb, spoon$mean_r2,
+      col = cols["Spoon-billed"], lwd = 2)
+
+lines(terek$distance_kb, terek$mean_r2,
+      col = cols["Terek"], lwd = 2)
+
+lines(bar_tailed$distance_kb, bar_tailed$mean_r2,
+      col = cols["Bar-tailed"], lwd = 2)
+
+legend(
+  "topright",
+  legend = species_names,
+  col = cols[species_names],
+  lwd = 2,
+  bty = "n",
+  cex = 0.8
+)
