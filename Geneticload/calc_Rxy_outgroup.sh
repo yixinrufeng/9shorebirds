@@ -35,18 +35,20 @@ strict_derived_alt = str(strict_derived_alt) == "1"
 # LoF definition follows the terms used in the gorilla supplementary methods,
 # with extra SnpEff-specific inframe terms included.
 lof_terms = {
-    "transcript_ablation",
-    "splice_donor_variant",
-    "splice_acceptor_variant",
-    "stop_gained",
-    "frameshift_variant",
-    "inframe_insertion",
-    "inframe_deletion",
-    "splice_region_variant",
-    "conservative_inframe_insertion",
-    "disruptive_inframe_insertion",
-    "conservative_inframe_deletion",
-    "disruptive_inframe_deletion"
+         "transcript_ablation",
+        "splice_donor_variant",
+        "splice_acceptor_variant",
+        "start_lost",
+        "stop_lost",
+        "stop_gained",
+        "frameshift_variant",
+        "inframe_insertion",
+        "inframe_deletion",
+        "splice_region_variant",
+        "conservative_inframe_insertion",
+        "disruptive_inframe_insertion",
+        "conservative_inframe_deletion",
+        "disruptive_inframe_deletion"
 }
 
 missense_terms = {
