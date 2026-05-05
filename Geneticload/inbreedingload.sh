@@ -39,28 +39,24 @@ strict_ref_ancestral = str(strict_ref_ancestral) == "1"
 # LoF 定义：你可以根据自己的标准修改
 lof_terms = {
     "transcript_ablation",
-    "feature_ablation",
-    "exon_loss_variant",
     "splice_donor_variant",
     "splice_acceptor_variant",
+	"start_lost",
+	"stop_lost",
     "stop_gained",
     "frameshift_variant",
-    "start_lost",
-    "stop_lost",
     "inframe_insertion",
     "inframe_deletion",
+    "splice_region_variant",
     "conservative_inframe_insertion",
     "disruptive_inframe_insertion",
     "conservative_inframe_deletion",
-    "disruptive_inframe_deletion",
-    "splice_region_variant"
+    "disruptive_inframe_deletion"
 }
 
 # 非同义突变：这里包括 LoF + missense + protein_altering
 nonsyn_terms = set(lof_terms) | {
     "missense_variant",
-    "protein_altering_variant",
-    "initiator_codon_variant"
 }
 
 syn_terms = {
