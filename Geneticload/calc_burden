@@ -7,7 +7,7 @@ do
         vcftools --vcf ./$i.recode.vcf --recode --recode-INFO-all --max-missing 1.0 --out $i.nomissing
         bcftools norm -m -any $i.nomissing.recode.vcf -Oz -o xx.split.vcf.gz
         bcftools index xx.split.vcf.gz
-USE_ONLY_REF_ANCESTRAL=0 ./calc_derived_burden.sh \
+USE_ONLY_REF_ANCESTRAL=1 ./calc_derived_burden.sh \
   xx.split.vcf.gz \
   outgroup.txt \
   Bar-tailed.txt \
