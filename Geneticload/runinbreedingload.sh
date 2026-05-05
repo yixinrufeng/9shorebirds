@@ -58,5 +58,5 @@ NR==1 {
 }
 $kb >= 500
 ' ../$i.hom > $i.hom
-STRICT_REF_ANCESTRAL=0 ./inbreedingload.sh ./$i.hom ../$i.renamed.sorted.vcf.gz ../outgroup.txt ../all $i
+STRICT_REF_ANCESTRAL=1 ./inbreedingload.sh ./$i.hom ../$i.renamed.sorted.vcf.gz ../outgroup.txt ../all $i
 done
