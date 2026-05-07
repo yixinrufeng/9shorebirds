@@ -46,17 +46,18 @@ done
 #manualy select the threshold for long and short roh
 #mkdir long 
 #cd long
-for i in A B C
-do
-awk '
-NR==1 {
-  for (i=1; i<=NF; i++) {
-    if ($i=="KB") kb=i
-  }
-  print
-  next
-}
-$kb >= 500
-' ../$i.hom > $i.hom
+#for i in A B C
+#do
+#awk '
+#NR==1 {
+ # for (i=1; i<=NF; i++) {
+  #  if ($i=="KB") kb=i
+  #}
+  #print
+  #next
+#}
+#$kb >= 500
+#' ../$i.hom > $i.hom
+# if run the >=500, then the non roh regin also include the roh less than 500, we should care about this
 STRICT_REF_ANCESTRAL=1 ./inbreedingload.sh ./$i.hom ../$i.renamed.sorted.vcf.gz ../outgroup.txt ../all $i
 done
